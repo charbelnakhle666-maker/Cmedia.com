@@ -31,10 +31,11 @@
       line-height: 1.6;
     }
     header {
-      min-height: 80px;
-      display: flex;
+      min-height: 96px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
       align-items: center;
-      justify-content: space-between;
+      gap: 24px;
       padding: 0 8%;
       background: rgba(255, 255, 255, 0.96);
       border-bottom: 1px solid var(--blue-border);
@@ -47,7 +48,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      min-width: 170px;
+      grid-column: 2;
+      grid-row: 1;
+      min-width: 150px;
     }
     .logo img {
       display: block;
@@ -55,9 +58,23 @@
       height: 72px;
       max-width: 100%;
     }
-    nav { display: flex; gap: 25px; align-items: center; }
-    nav a { color: var(--navy); text-decoration: none; transition: color 0.2s ease; }
-    nav a:hover { color: var(--blue); }
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+    }
+    .header-nav-left {
+      grid-column: 1;
+      grid-row: 1;
+      justify-content: flex-end;
+    }
+    .header-nav-right {
+      grid-column: 3;
+      grid-row: 1;
+      justify-content: flex-start;
+    }
+    .header-nav a { color: var(--navy); text-decoration: none; transition: color 0.2s ease; }
+    .header-nav a:hover { color: var(--blue); }
     button {
       background: linear-gradient(115deg, #367eb8, var(--navy));
       border: 1px solid var(--gold);
@@ -373,42 +390,49 @@
       .portfolio-story { padding: 28px 24px; }
       .cards, .portfolio, .client-links { grid-template-columns: 1fr; }
       header {
+        display: flex;
         flex-wrap: wrap;
+        justify-content: center;
         gap: 12px;
         height: auto;
         padding: 18px 20px;
       }
-      nav {
+      .logo {
+        width: 100%;
+        order: 0;
+      }
+      .header-nav {
         width: 100%;
         justify-content: center;
         flex-wrap: wrap;
         gap: 12px 18px;
       }
+      .header-nav-left { order: 1; }
+      .header-nav-right { order: 2; }
       .header-cta {
-        width: 100%;
+        width: auto;
       }
-      .header-cta button {
-        width: 100%;
-      }
+      .header-cta button { padding: 12px 16px; }
     }
     @media (max-width: 520px) {
       .logo img { height: 54px; }
       .hero, section { padding: 65px 20px; }
       h2 { font-size: 34px; }
-      nav { gap: 10px 14px; }
+      .header-nav { gap: 10px 14px; }
     }
   </style>
 </head>
 <body>
   <header>
+    <nav class="header-nav header-nav-left" aria-label="Main navigation">
+      <a href="#pricing">Packages</a>
+      <a href="#services">Services</a>
+      <a href="#portfolio">Portfolio</a>
+    </nav>
     <div class="logo">
       <img src="assets/logo/c-media-logo.png" alt="C Media logo">
     </div>
-    <nav>
-      <a href="#services">Services</a>
-      <a href="#portfolio">Portfolio</a>
-      <a href="#pricing">Packages</a>
-      <a href="#about">About</a>
+    <nav class="header-nav header-nav-right" aria-label="Contact and appointment">
       <a href="#contact">Contact</a>
       <div class="header-cta">
         <button type="button" onclick="requestAppointment()">Book an Appointment</button>
