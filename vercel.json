@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/.netlify/functions/appointments",
+      "destination": "/api/appointments"
+    },
+    {
+      "source": "/.netlify/functions/microsoft-calendar",
+      "destination": "/api/microsoft-calendar"
+    }
+  ]
+}
