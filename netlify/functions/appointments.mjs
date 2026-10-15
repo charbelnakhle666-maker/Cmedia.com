@@ -77,12 +77,15 @@ function validateInquiry(body) {
     return "Please provide the inquiry details.";
   }
 
-  const { fullName, email, businessType, appointmentDate } = body;
+  const { fullName, email, phoneNumber, businessType, appointmentDate } = body;
   if (typeof fullName !== "string" || fullName.trim().length < 2 || fullName.trim().length > 100) {
     return "Enter a full name between 2 and 100 characters.";
   }
   if (typeof email !== "string" || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
     return "Enter a valid email address.";
+  }
+  if (typeof phoneNumber !== "string" || !/^\+[1-9]\d{6,14}$/.test(phoneNumber.trim())) {
+    return "Enter a valid phone number with its country calling code.";
   }
   if (typeof businessType !== "string" || businessType.trim().length < 2 || businessType.trim().length > 100) {
     return "Enter a business type between 2 and 100 characters.";
@@ -130,6 +133,7 @@ async function sendEmailNotification(inquiry) {
         "New C Media appointment inquiry",
         `Name: ${inquiry.full_name}`,
         `Email: ${inquiry.email}`,
+        `Phone: ${inquiry.phone_number}`,
         `Business type: ${inquiry.business_type}`,
         `Preferred date: ${date}`,
         "",
@@ -233,6 +237,7 @@ export async function handler(event) {
   const inquiry = {
     full_name: body.fullName.trim(),
     email: body.email.trim(),
+    phone_number: body.phoneNumber.trim(),
     business_type: body.businessType.trim(),
     appointment_date: body.appointmentDate
   };

@@ -12,6 +12,8 @@ added to the calendar.
 
 1. Create a Supabase project.
 2. In the Supabase SQL Editor, run [`supabase-schema.sql`](./supabase-schema.sql).
+   If the `appointment_inquiries` table already exists, run the schema again to
+   add the phone-number column used by new booking inquiries.
 3. In the Supabase project settings, copy the project URL and service-role key.
    Keep the service-role key private; configure it only as a serverless
    deployment environment variable, never in the website HTML.
