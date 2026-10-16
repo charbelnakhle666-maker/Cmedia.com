@@ -30,6 +30,46 @@
       font-family: "Poppins", sans-serif;
       line-height: 1.6;
     }
+    .ambient-fields {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .ambient-fields::before,
+    .ambient-fields::after {
+      content: "";
+      position: absolute;
+      width: min(52vw, 680px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      filter: blur(36px);
+      opacity: 0.24;
+      animation: ambientDrift 34s ease-in-out infinite alternate;
+    }
+    .ambient-fields::before {
+      top: -24%;
+      left: -14%;
+      background: radial-gradient(circle, rgba(185, 220, 255, 0.62), transparent 70%);
+    }
+    .ambient-fields::after {
+      right: -18%;
+      bottom: -34%;
+      background: radial-gradient(circle, rgba(201, 164, 92, 0.32), transparent 70%);
+      animation-delay: -17s;
+      animation-duration: 42s;
+    }
+    @keyframes ambientDrift {
+      from { transform: translate3d(-2%, -1%, 0) scale(0.94); }
+      to { transform: translate3d(5%, 4%, 0) scale(1.06); }
+    }
+    .ambient-fields.is-paused::before,
+    .ambient-fields.is-paused::after { animation-play-state: paused; }
+    body > header { position: sticky; z-index: 10; }
+    body > section { position: relative; z-index: auto; }
+    body > section > * { position: relative; z-index: 2; }
+    body > footer { position: relative; z-index: 2; }
     header {
       min-height: 96px;
       display: grid;
@@ -75,6 +115,7 @@
     }
     .header-nav a { color: var(--navy); text-decoration: none; transition: color 0.2s ease; }
     .header-nav a:hover { color: var(--blue); }
+    a:focus-visible, button:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
     button {
       background: linear-gradient(115deg, #367eb8, var(--navy));
       border: 1px solid var(--gold);
@@ -130,6 +171,17 @@
     .chart-grid { stroke: rgba(255, 255, 255, 0.17); stroke-width: 1; }
     .chart-axis { stroke: rgba(255, 255, 255, 0.55); stroke-width: 1.5; }
     .chart-track { fill: none; stroke-width: 2; stroke-linecap: round; opacity: 0.5; }
+    .hero-box.is-visible .chart-track { animation: chartDraw 1.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .hero-box.is-visible .chart-track.growth { animation-delay: 180ms; }
+    .hero-box.is-visible { animation: heroFloat 5s ease-in-out 1s infinite; }
+    @keyframes chartDraw {
+      from { stroke-dasharray: 500; stroke-dashoffset: 500; }
+      to { stroke-dasharray: 500; stroke-dashoffset: 0; }
+    }
+    @keyframes heroFloat {
+      0%, 100% { translate: 0 0; }
+      50% { translate: 0 -7px; }
+    }
     .chart-track.strategy { stroke: var(--gold-light); }
     .chart-track.growth { stroke: #b9dcff; }
     .chart-arrow-text {
@@ -153,6 +205,7 @@
       letter-spacing: 2px;
     }
     section { padding: 90px 8%; }
+    section[id] { scroll-margin-top: 118px; }
     .scroll-reveal {
       opacity: 1;
       transform: none;
@@ -169,12 +222,20 @@
     }
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
+      .ambient-fields::before,
+      .ambient-fields::after { animation: none; }
       .has-scroll-reveal .scroll-reveal {
         opacity: 1;
         transform: none;
         transition: none;
       }
-      .package-card-inner { transition: none; }
+      .package-card-inner,
+      .comparison-line,
+      .scenario-with,
+      .scenario-without,
+      .client-case-study { transition: none; }
+      .hero-box.is-visible,
+      .hero-box.is-visible .chart-track { animation: none; }
     }
     h2 {
       font-size: 45px;
@@ -192,6 +253,71 @@
       background: linear-gradient(90deg, var(--blue), var(--gold));
     }
     #services { background: var(--white); }
+    #growth-comparison { background: linear-gradient(180deg, var(--white), var(--blue-pale)); }
+    .comparison-intro {
+      max-width: 700px;
+      margin: -24px auto 36px;
+      color: var(--blue-muted);
+      text-align: center;
+    }
+    .comparison-chart {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: clamp(20px, 4vw, 42px);
+      border: 1px solid var(--blue-border);
+      border-radius: 8px 28px 28px 28px;
+      background: var(--white);
+      box-shadow: 0 18px 48px rgba(8, 38, 75, 0.09);
+    }
+    .comparison-controls {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .comparison-controls button { min-width: 170px; padding: 11px 22px; }
+    .comparison-controls button[aria-pressed="false"] {
+      border-color: var(--blue-border);
+      background: var(--blue-pale);
+      color: var(--navy);
+      box-shadow: none;
+    }
+    .comparison-controls button[aria-pressed="false"]:hover {
+      border-color: var(--gold);
+      box-shadow: 0 8px 20px rgba(8, 38, 75, 0.1);
+    }
+    .comparison-chart-scroll { overflow-x: auto; overscroll-behavior-inline: contain; }
+    .comparison-chart svg {
+      display: block;
+      width: 100%;
+      min-width: 680px;
+      height: auto;
+      overflow: hidden;
+    }
+    .comparison-grid { stroke: var(--blue-border); stroke-width: 1; }
+    .comparison-axis { stroke: var(--blue-muted); stroke-width: 2; }
+    .comparison-axis-label { fill: var(--navy); font: 600 16px "Poppins", sans-serif; }
+    .comparison-month { fill: var(--blue-muted); font: 400 13px "Poppins", sans-serif; text-anchor: middle; }
+    .comparison-line {
+      fill: none;
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: opacity 300ms ease;
+    }
+    .comparison-line.with,
+    .comparison-line.drop { stroke: var(--blue); }
+    .comparison-line.low { stroke: var(--gold); stroke-dasharray: 13 11; }
+    .scenario-with,
+    .scenario-without { opacity: 0; transition: opacity 300ms ease; }
+    .comparison-chart[data-scenario="with"] .scenario-with,
+    .comparison-chart[data-scenario="without"] .scenario-without { opacity: 1; }
+    .comparison-chart[data-scenario="with"] .comparison-line.drop,
+    .comparison-chart[data-scenario="with"] .comparison-line.low,
+    .comparison-chart[data-scenario="without"] .comparison-line.with { opacity: 0; }
+    .sales-traveler { pointer-events: none; }
+    .comparison-summary { min-height: 28px; margin-top: 14px; color: var(--blue-muted); text-align: center; }
     .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
     .card {
       background: var(--white);
@@ -208,6 +334,48 @@
     }
     .card h3 { margin-bottom: 15px; color: var(--navy); }
     .card p { color: var(--blue-muted); }
+    .service-card h3 { margin-bottom: 0; }
+    .service-toggle {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: none;
+      box-shadow: none;
+      color: var(--navy);
+      font: 700 20px/1.35 "Montserrat", sans-serif;
+      text-align: left;
+    }
+    .service-toggle:hover { transform: none; box-shadow: none; color: var(--blue); }
+    .service-toggle::after {
+      content: "";
+      width: 9px;
+      height: 9px;
+      flex: 0 0 9px;
+      border-right: 2px solid var(--gold);
+      border-bottom: 2px solid var(--gold);
+      transform: rotate(45deg);
+      transition: transform 220ms ease;
+    }
+    .service-toggle[aria-expanded="true"]::after { transform: rotate(225deg); }
+    .service-description {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--blue-border);
+      animation: serviceReveal 280ms ease both;
+    }
+    @keyframes serviceReveal {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .service-toggle::after { transition: none; }
+      .service-description { animation: none; }
+    }
     #pricing { background: linear-gradient(155deg, #eaf3fc 0%, #f7fbff 58%, #e1eef9 100%); }
     .pricing-note { margin: 32px 0 0; color: var(--blue-muted); text-align: center; }
     .pricing-offer { max-width: 800px; margin: 18px auto 0; color: var(--blue); text-align: center; }
@@ -240,9 +408,9 @@
       transform-style: preserve-3d;
       transition: transform 650ms cubic-bezier(0.2, 0.7, 0.2, 1);
     }
-    .package-card:focus { outline: 3px solid var(--gold); outline-offset: 4px; }
-    .package-card:hover .package-card-inner,
-    .package-card:focus .package-card-inner { transform: rotateY(180deg); }
+    .package-card:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
+    .package-card.is-flipped .package-card-inner { transform: rotateY(180deg); }
+    .package-card { cursor: pointer; }
     .package-card-face {
       position: absolute;
       inset: 0;
@@ -279,7 +447,32 @@
     .portfolio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
     .portfolio-clients { margin-top: 60px; }
     .portfolio-clients h3 { margin-bottom: 25px; font-size: 28px; text-align: center; }
-    .client-links { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .client-marquee {
+      overflow-x: auto;
+      border: 1px solid var(--blue-border);
+      border-radius: 8px 24px 24px 24px;
+      background: linear-gradient(135deg, #ffffff, #f1f7fd);
+      box-shadow: 0 12px 32px rgba(8, 38, 75, 0.06);
+      scrollbar-width: thin;
+      scrollbar-color: var(--blue-border) transparent;
+    }
+    .client-marquee.is-moving { overflow: hidden; }
+    .client-marquee-track,
+    .client-links {
+      display: flex;
+      width: max-content;
+      align-items: stretch;
+      gap: 16px;
+    }
+    .client-marquee-track { gap: 0; }
+    .client-links { padding: 16px; }
+    .client-marquee.is-moving .client-marquee-track { animation: clientMarquee 48s linear infinite; }
+    @keyframes clientMarquee { to { transform: translateX(-50%); } }
+    .client-marquee:hover .client-marquee-track,
+    .client-marquee:focus-within .client-marquee-track,
+    .portfolio-clients.is-paused .client-marquee-track { animation-play-state: paused; }
+    .client-marquee:focus-within { outline: 3px solid var(--gold); outline-offset: 4px; }
+    .client-marquee-group[aria-hidden="true"] { pointer-events: none; }
     .client-link {
       display: block;
       padding: 20px 24px;
@@ -298,6 +491,35 @@
       min-height: 218px;
       padding: 17px 14px 16px;
       text-align: center;
+    }
+    .client-marquee .client-link,
+    .client-marquee .client-link.has-logo {
+      display: flex;
+      width: 180px;
+      min-height: 168px;
+      flex: 0 0 180px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 15px 12px;
+      text-align: center;
+    }
+    .client-marquee .client-logo { width: 78px; margin-bottom: 8px; }
+    .client-marquee .client-link strong { font-size: 14px; }
+    .client-marquee .client-link span:not(.client-logo) { font-size: 12px; }
+    .client-placeholder-logo {
+      display: grid !important;
+      width: 78px;
+      aspect-ratio: 1;
+      place-items: center;
+      margin: 0 auto 8px;
+      border: 1px solid var(--blue-border);
+      border-radius: 50%;
+      background: var(--blue-light);
+      color: var(--navy) !important;
+      font-family: "Montserrat", sans-serif;
+      font-size: 21px !important;
+      font-weight: 800;
     }
     .client-link:not(.has-logo) {
       display: flex;
@@ -335,10 +557,11 @@
     }
     .portfolio-story > h3 { margin-bottom: 24px; color: var(--navy); font-size: 28px; text-align: center; }
     .portfolio-story p { margin-top: 16px; color: var(--blue-muted); }
+    .portfolio-story > .portfolio-intro { margin: 0 auto 28px; }
     .portfolio-closing { margin-top: 32px !important; color: var(--navy) !important; font-size: 20px; font-weight: 600; text-align: center; }
     .project {
       position: relative;
-      min-height: 330px;
+      min-height: 390px;
       padding: 30px;
       overflow: hidden;
       border: 1px solid rgba(201, 164, 92, 0.45);
@@ -369,8 +592,30 @@
       letter-spacing: 0.12em;
       text-transform: uppercase;
     }
-    .project h3 { margin: 12px 0 8px; font-size: 27px; }
+    .project h3 { margin: 16px 0 8px; color: var(--white); font-size: 27px; }
     .project p { color: #d9e8f8; }
+    .project-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--gold-light);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .project-kicker::before { content: ""; width: 20px; height: 1px; background: var(--gold); }
+    .project-detail { margin-top: 20px; padding-top: 17px; border-top: 1px solid rgba(185, 220, 255, 0.3); }
+    .project-detail strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--blue-highlight);
+      font-family: "Montserrat", sans-serif;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .project-detail p { color: #d9e8f8; font-size: 14px; }
     .project-services {
       display: flex;
       flex-wrap: wrap;
@@ -385,6 +630,45 @@
       font-size: 12px;
       background: rgba(185, 220, 255, 0.1);
     }
+    .portfolio-intro { max-width: 760px; margin: -22px auto 42px; color: var(--blue-muted); text-align: center; }
+    .portfolio-case-studies { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 28px; }
+    .client-case-study {
+      display: grid;
+      grid-template-columns: 82px minmax(0, 1fr);
+      align-content: start;
+      align-items: center;
+      gap: 4px 18px;
+      padding: 25px;
+      border: 1px solid var(--blue-border);
+      border-radius: 8px 22px 22px 22px;
+      background: linear-gradient(135deg, var(--white), #f1f7fd);
+      box-shadow: 0 10px 26px rgba(8, 38, 75, 0.055);
+      transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+    }
+    .client-case-study:hover { transform: translateY(-4px); border-color: var(--gold); box-shadow: 0 16px 34px rgba(8, 38, 75, 0.1); }
+    .case-study-logo { grid-row: span 2; width: 82px; aspect-ratio: 1; overflow: hidden; border: 1px solid var(--blue-border); border-radius: 50%; background: var(--white); }
+    .case-study-logo img { display: block; width: 100%; height: 100%; object-fit: contain; }
+    .case-study-label { color: var(--blue); font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+    .client-case-study h4 { margin-top: 2px; color: var(--navy); font: 700 21px/1.25 "Montserrat", sans-serif; }
+    .case-study-copy,
+    .case-study-focus { grid-column: 1 / -1; }
+    .client-case-study .case-study-copy { margin-top: 17px; color: var(--blue-muted); }
+    .client-case-study .case-study-focus { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--blue-border); color: var(--blue-muted); font-size: 14px; }
+    .case-study-focus strong { color: var(--navy); }
+    .case-study-link {
+      display: inline-flex;
+      grid-column: 1 / -1;
+      align-items: center;
+      gap: 8px;
+      justify-self: start;
+      margin-top: 15px;
+      color: var(--blue);
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration-color: var(--gold);
+      text-underline-offset: 4px;
+    }
+    .case-study-link::after { content: "\2197"; color: var(--gold); font-size: 17px; }
     .about { max-width: 800px; margin: auto; text-align: center; font-size: 20px; color: var(--blue-muted); }
     #about { background: var(--white); }
     #contact {
@@ -446,7 +730,8 @@
       .hero-text { max-width: 100%; }
       .hero-box { width: min(100%, 350px); height: 300px; }
       .portfolio-story { padding: 28px 24px; }
-      .cards, .portfolio, .client-links { grid-template-columns: 1fr; }
+      .portfolio-case-studies { grid-template-columns: 1fr; }
+      .cards, .portfolio { grid-template-columns: 1fr; }
       header {
         display: flex;
         flex-wrap: wrap;
@@ -477,10 +762,20 @@
       .hero, section { padding: 65px 20px; }
       h2 { font-size: 34px; }
       .header-nav { gap: 10px 14px; }
+      .comparison-chart { padding: 20px 14px; }
+      .comparison-controls button { flex: 1 1 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .client-marquee,
+      .client-marquee.is-moving { overflow-x: auto; }
+      .client-marquee-track { animation: none !important; }
+      .service-toggle::after { transition: none; }
+      .service-description { animation: none; }
     }
   </style>
 </head>
 <body>
+  <div class="ambient-fields" aria-hidden="true"></div>
   <header>
     <nav class="header-nav header-nav-left" aria-label="Main navigation">
       <a href="#pricing">Packages</a>
@@ -532,74 +827,158 @@
     </div>
   </section>
 
+  <section id="growth-comparison">
+    <h2>Your Business</h2>
+    <p class="comparison-intro">See how a consistent strategy can shape your sales through the year.</p>
+    <div class="comparison-chart" id="businessGrowthChart" data-scenario="with">
+      <div class="comparison-controls" role="group" aria-label="Choose a sales growth scenario">
+        <button type="button" id="withCmedia" aria-pressed="true">With CMedia</button>
+        <button type="button" id="withoutCmedia" aria-pressed="false">Without Cmedia</button>
+      </div>
+      <div class="comparison-chart-scroll">
+        <svg viewBox="0 0 960 430" role="img" aria-labelledby="businessChartTitle businessChartDescription">
+          <title id="businessChartTitle">Your business sales over 12 months</title>
+          <desc id="businessChartDescription">Compare gradually growing sales with CMedia to sales that drop or remain low without a consistent strategy.</desc>
+          <defs>
+            <marker id="salesArrowBlue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--blue)" />
+            </marker>
+            <marker id="salesArrowGold" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--gold)" />
+            </marker>
+          </defs>
+          <g class="comparison-grid">
+            <path d="M 94 70 H 875 M 94 130 H 875 M 94 190 H 875 M 94 250 H 875 M 94 310 H 875" />
+          </g>
+          <path class="comparison-axis" d="M 94 50 V 350 H 875" />
+          <text class="comparison-axis-label" transform="translate(30 210) rotate(-90)" text-anchor="middle">Sales</text>
+          <text class="comparison-month" x="94" y="378">Jan</text>
+          <text class="comparison-month" x="163" y="378">Feb</text>
+          <text class="comparison-month" x="232" y="378">Mar</text>
+          <text class="comparison-month" x="301" y="378">Apr</text>
+          <text class="comparison-month" x="369" y="378">May</text>
+          <text class="comparison-month" x="438" y="378">Jun</text>
+          <text class="comparison-month" x="507" y="378">Jul</text>
+          <text class="comparison-month" x="576" y="378">Aug</text>
+          <text class="comparison-month" x="644" y="378">Sep</text>
+          <text class="comparison-month" x="713" y="378">Oct</text>
+          <text class="comparison-month" x="782" y="378">Nov</text>
+          <text class="comparison-month" x="850" y="378">Dec</text>
+          <text class="comparison-axis-label" x="484" y="416" text-anchor="middle">Months of the year</text>
+          <g class="scenario-with">
+            <path class="comparison-line with" data-scenario-line="with" d="M 94 350 C 150 338, 174 298, 232 282 S 335 251, 369 235 S 474 202, 507 184 S 611 146, 644 126 S 748 91, 782 74 S 829 62, 850 58" marker-end="url(#salesArrowBlue)" />
+            <g fill="var(--white)" stroke="var(--gold)" stroke-width="4">
+              <circle cx="94" cy="350" r="5" /><circle cx="163" cy="303" r="5" />
+              <circle cx="232" cy="282" r="5" /><circle cx="301" cy="262" r="5" />
+              <circle cx="369" cy="235" r="5" /><circle cx="438" cy="211" r="5" />
+              <circle cx="507" cy="184" r="5" /><circle cx="576" cy="158" r="5" />
+              <circle cx="644" cy="126" r="5" /><circle cx="713" cy="102" r="5" />
+              <circle cx="782" cy="74" r="5" /><circle cx="850" cy="58" r="5" />
+            </g>
+            <polygon class="sales-traveler" data-scenario-traveler="with" points="0,-8 16,0 0,8 4,0" fill="var(--blue)" visibility="hidden" />
+          </g>
+          <g class="scenario-without">
+            <path class="comparison-line drop" data-scenario-line="without" d="M 94 78 C 150 88, 174 135, 232 168 S 335 225, 369 244 S 474 278, 507 292 S 611 319, 644 325 S 748 337, 782 339 S 829 340, 850 340" marker-end="url(#salesArrowBlue)" />
+            <path class="comparison-line low" data-scenario-line="without" d="M 94 310 C 232 307, 369 315, 507 311 S 713 308, 850 312" marker-end="url(#salesArrowGold)" />
+            <polygon class="sales-traveler" data-scenario-traveler="without" data-line-index="0" points="0,-8 16,0 0,8 4,0" fill="var(--blue)" visibility="hidden" />
+            <polygon class="sales-traveler" data-scenario-traveler="without" data-line-index="1" points="0,-8 16,0 0,8 4,0" fill="var(--gold)" visibility="hidden" />
+          </g>
+        </svg>
+      </div>
+      <p class="comparison-summary" id="comparisonSummary" role="status" aria-live="polite">With CMedia: sales grow gradually throughout the year.</p>
+    </div>
+  </section>
+
   <section id="services">
     <h2>Our Services</h2>
     <div class="cards">
-      <article class="card"><h3>Social Media Management</h3><p>Complete management of your social platforms, content calendar and audience growth.</p></article>
-      <article class="card"><h3>Content Creation</h3><p>Professional posts, designs and creative ideas that represent your brand.</p></article>
-      <article class="card"><h3>Reels &amp; Videos</h3><p>Short videos designed to increase attention and engagement.</p></article>
-      <article class="card"><h3>Branding</h3><p>Create a recognizable and professional identity.</p></article>
-      <article class="card"><h3>Advertising Campaigns</h3><p>Ads designed to generate leads and sales.</p></article>
-      <article class="card"><h3>Growth Strategy</h3><p>Analyze performance and improve results.</p></article>
+      <article class="card service-card"><h3><button class="service-toggle" type="button" aria-expanded="false" aria-controls="service-management">Social Media Management</button></h3><p class="service-description" id="service-management" hidden>We give your social presence a steady, thoughtful rhythm: planning each post, tending to your community, and shaping every interaction into a stronger relationship with your audience.</p></article>
+      <article class="card service-card"><h3><button class="service-toggle" type="button" aria-expanded="false" aria-controls="service-content">Content Creation</button></h3><p class="service-description" id="service-content" hidden>Every brand has a story worth remembering. We turn yours into considered visuals and clear, distinctive messages that feel true to your identity and stay with the people you want to reach.</p></article>
+      <article class="card service-card"><h3><button class="service-toggle" type="button" aria-expanded="false" aria-controls="service-video">Reels &amp; Videos</button></h3><p class="service-description" id="service-video" hidden>In a passing scroll, a good story earns a moment. We craft short-form video with a strong opening, purposeful pacing, and a human touch that invites people to stop, watch, and respond.</p></article>
+      <article class="card service-card"><h3><button class="service-toggle" type="button" aria-expanded="false" aria-controls="service-branding">Branding</button></h3><p class="service-description" id="service-branding" hidden>We build a visual voice your audience can recognize before they read a word—from thoughtful design choices to a consistent identity that gives your business confidence and character.</p></article>
+      <article class="card service-card"><h3><button class="service-toggle" type="button" aria-expanded="false" aria-controls="service-advertising">Advertising Campaigns</button></h3><p class="service-description" id="service-advertising" hidden>Good advertising meets the right people with the right message. We shape and refine campaigns around your goals, helping each investment travel further and turn attention into meaningful action.</p></article>
+      <article class="card service-card"><h3><button class="service-toggle" type="button" aria-expanded="false" aria-controls="service-strategy">Growth Strategy</button></h3><p class="service-description" id="service-strategy" hidden>Growth is not a lucky leap; it is a series of deliberate steps. We read the signals in your performance, uncover new opportunities, and turn what we learn into a clear path forward.</p></article>
     </div>
   </section>
 
   <section id="portfolio">
     <h2>Portfolio</h2>
+    <p class="portfolio-intro">Good work connects a clear idea with thoughtful execution. Explore campaign concepts, the thinking behind them, and a closer look at how we have helped clients strengthen their presence.</p>
     <div class="portfolio">
       <article class="project">
         <div>
-          <span class="project-number">Project 01</span>
+          <span class="project-kicker">Campaign concept 01</span>
           <h3>Brand Launch</h3>
-          <p>A complete brand-focused campaign built around a clear strategy and creative content direction.</p>
+          <p class="project-description">A new brand deserves more than an introduction. It needs a first impression people can recognize, understand, and remember.</p>
+          <div class="project-detail"><strong>The approach</strong><p>Set a clear identity and audience direction, then carry that story consistently through purposeful content and launch messaging.</p></div>
+          <div class="project-detail"><strong>The intention</strong><p>Build familiarity and trust from the first encounter, giving every campaign element a role in the bigger brand story.</p></div>
         </div>
-        <div class="project-services">
-          <span>Strategy</span><span>Creative Content</span><span>Brand Identity</span>
-        </div>
+        <div class="project-services"><span>Brand Strategy</span><span>Creative Content</span><span>Identity</span></div>
       </article>
 
       <article class="project">
         <div>
-          <span class="project-number">Project 02</span>
+          <span class="project-kicker">Campaign concept 02</span>
           <h3>Social Campaign</h3>
-          <p>A campaign approach combining short-form video, social content, and advertising to create stronger engagement.</p>
+          <p class="project-description">A campaign should feel like one connected story—not separate posts competing for attention.</p>
+          <div class="project-detail"><strong>The approach</strong><p>Bring short-form video, social content, and advertising together around one message, with creative shaped for each moment in the journey.</p></div>
+          <div class="project-detail"><strong>The intention</strong><p>Make it easier for people to notice, connect with, and take the next step with the business.</p></div>
         </div>
-        <div class="project-services">
-          <span>Reels</span><span>Video</span><span>Advertising</span>
-        </div>
+        <div class="project-services"><span>Reels</span><span>Campaign Content</span><span>Advertising</span></div>
       </article>
 
       <article class="project">
         <div>
-          <span class="project-number">Project 03</span>
+          <span class="project-kicker">Campaign concept 03</span>
           <h3>Business Growth</h3>
-          <p>A growth-focused approach connecting content, audience engagement, lead generation, and sales optimization.</p>
+          <p class="project-description">Lasting growth happens when every part of a business's online presence works toward the same goal.</p>
+          <div class="project-detail"><strong>The approach</strong><p>Connect useful content, audience conversations, lead generation, and ongoing performance review in one considered plan.</p></div>
+          <div class="project-detail"><strong>The intention</strong><p>Turn what the audience responds to into smarter next steps, and keep improving with purpose rather than guesswork.</p></div>
         </div>
-        <div class="project-services">
-          <span>Growth Strategy</span><span>Leads</span><span>Sales Optimization</span>
-        </div>
+        <div class="project-services"><span>Growth Strategy</span><span>Lead Generation</span><span>Optimization</span></div>
       </article>
     </div>
     <div class="portfolio-clients">
       <h3>Our Clients</h3>
-      <div class="client-links">
-        <a class="client-link" href="https://www.instagram.com/electromecaniqueraad/" target="_blank" rel="noopener noreferrer"><strong>Raad Auto</strong><span>@electromecaniqueraad</span></a>
-        <a class="client-link has-logo" href="https://www.instagram.com/maisontech.lb/" target="_blank" rel="noopener noreferrer"><span class="client-logo"><img src="assets/client-logos/maison-tech.png" alt="Maison Tech logo" loading="lazy"></span><strong>Maison Tech</strong><span>@maisontech.lb</span></a>
-        <a class="client-link has-logo" href="https://www.instagram.com/yakuza.leb/" target="_blank" rel="noopener noreferrer"><span class="client-logo"><img src="assets/client-logos/yakuza.png" alt="Yakuza logo" loading="lazy"></span><strong>Yakuza</strong><span>@yakuza.leb</span></a>
-        <a class="client-link has-logo" href="https://www.instagram.com/oneeighty.cars/" target="_blank" rel="noopener noreferrer"><span class="client-logo"><img src="assets/client-logos/180%20car%20logo.png" alt="180 Cars logo" loading="lazy"></span><strong>180 Cars</strong><span>@oneeighty.cars</span></a>
-        <a class="client-link has-logo" href="https://www.instagram.com/yellowskoolie/" target="_blank" rel="noopener noreferrer"><span class="client-logo"><img src="assets/client-logos/yellow-skoolie.png" alt="Yellow Skoolie logo" loading="lazy"></span><strong>Yellow Skoolie</strong><span>@yellowskoolie</span></a>
-        <a class="client-link has-logo" href="https://www.instagram.com/thelamppost.petshop/" target="_blank" rel="noopener noreferrer"><span class="client-logo"><img src="assets/client-logos/lamp-post.png" alt="The Lamp Post Pet Shop logo" loading="lazy"></span><strong>Lamp Post</strong><span>@thelamppost.petshop</span></a>
-        <a class="client-link has-logo" href="https://www.instagram.com/devineskin.lb/" target="_blank" rel="noopener noreferrer"><span class="client-logo"><img src="assets/client-logos/devine-skin.png" alt="Devine Skin Clinic logo" loading="lazy"></span><strong>Devine Skin</strong><span>@devineskin.lb</span></a>
-        <a class="client-link has-logo" href="https://www.instagram.com/freddycellshop/" target="_blank" rel="noopener noreferrer"><span class="client-logo"><img src="assets/client-logos/freddycell.png" alt="Freddy Cell logo" loading="lazy"></span><strong>Freddy Cell</strong><span>@freddycellshop</span></a>
-        <a class="client-link has-logo" href="https://www.instagram.com/infinity.snacl.lb/" target="_blank" rel="noopener noreferrer"><span class="client-logo"><img src="assets/client-logos/infinity-snacks-circular.png" alt="Infinity Snack logo" loading="lazy"></span><strong>Infinity Snack</strong><span>@infinity.snacl.lb</span></a>
-        <a class="client-link has-logo" href="https://www.instagram.com/swimfinity_lb/" target="_blank" rel="noopener noreferrer"><span class="client-logo"><img src="assets/client-logos/swimfinity-circular-matching-infinity-snacks.png" alt="Swimfinity logo" loading="lazy"></span><strong>Swimfinity</strong><span>@swimfinity_lb</span></a>
-        <a class="client-link has-logo" href="https://www.instagram.com/roujoula.official/" target="_blank" rel="noopener noreferrer"><span class="client-logo"><img src="assets/client-logos/roujoula.png" alt="Roujoula logo" loading="lazy"></span><strong>Roujoula</strong><span>@roujoula.official</span></a>
+      <div class="client-marquee" role="region" aria-label="Client logos and names">
+        <div class="client-marquee-track">
+          <div class="client-links client-marquee-group">
+            <a class="client-link" href="https://www.instagram.com/electromecaniqueraad/" target="_blank" rel="noopener noreferrer"><span class="client-placeholder-logo" aria-hidden="true">RA</span><strong>Raad Auto</strong><span>@electromecaniqueraad</span></a>
+            <a class="client-link has-logo" href="https://www.instagram.com/maisontech.lb/" target="_blank" rel="noopener noreferrer"><span class="client-logo"><img src="assets/client-logos/maison-tech.png" alt="Maison Tech logo"></span><strong>Maison Tech</strong><span>@maisontech.lb</span></a>
+            <a class="client-link has-logo" href="https://www.instagram.com/yakuza.leb/" target="_blank" rel="noopener noreferrer"><span class="client-logo"><img src="assets/client-logos/yakuza.png" alt="Yakuza logo"></span><strong>Yakuza</strong><span>@yakuza.leb</span></a>
+            <a class="client-link has-logo" href="https://www.instagram.com/oneeighty.cars/" target="_blank" rel="noopener noreferrer"><span class="client-logo"><img src="assets/client-logos/180%20car%20logo.png" alt="180 Cars logo"></span><strong>180 Cars</strong><span>@oneeighty.cars</span></a>
+            <a class="client-link has-logo" href="https://www.instagram.com/yellowskoolie/" target="_blank" rel="noopener noreferrer"><span class="client-logo"><img src="assets/client-logos/yellow-skoolie.png" alt="Yellow Skoolie logo"></span><strong>Yellow Skoolie</strong><span>@yellowskoolie</span></a>
+            <a class="client-link has-logo" href="https://www.instagram.com/thelamppost.petshop/" target="_blank" rel="noopener noreferrer"><span class="client-logo"><img src="assets/client-logos/lamp-post.png" alt="The Lamp Post Pet Shop logo"></span><strong>Lamp Post</strong><span>@thelamppost.petshop</span></a>
+            <a class="client-link has-logo" href="https://www.instagram.com/devineskin.lb/" target="_blank" rel="noopener noreferrer"><span class="client-logo"><img src="assets/client-logos/devine-skin.png" alt="Devine Skin Clinic logo"></span><strong>Devine Skin</strong><span>@devineskin.lb</span></a>
+            <a class="client-link has-logo" href="https://www.instagram.com/freddycellshop/" target="_blank" rel="noopener noreferrer"><span class="client-logo"><img src="assets/client-logos/freddycell.png" alt="Freddy Cell logo"></span><strong>Freddy Cell</strong><span>@freddycellshop</span></a>
+            <a class="client-link has-logo" href="https://www.instagram.com/infinity.snacl.lb/" target="_blank" rel="noopener noreferrer"><span class="client-logo"><img src="assets/client-logos/infinity-snacks-circular.png" alt="Infinity Snack logo"></span><strong>Infinity Snack</strong><span>@infinity.snacl.lb</span></a>
+            <a class="client-link has-logo" href="https://www.instagram.com/swimfinity_lb/" target="_blank" rel="noopener noreferrer"><span class="client-logo"><img src="assets/client-logos/swimfinity-circular-matching-infinity-snacks.png" alt="Swimfinity logo"></span><strong>Swimfinity</strong><span>@swimfinity_lb</span></a>
+            <a class="client-link has-logo" href="https://www.instagram.com/roujoula.official/" target="_blank" rel="noopener noreferrer"><span class="client-logo"><img src="assets/client-logos/roujoula.png" alt="Roujoula logo"></span><strong>Roujoula</strong><span>@roujoula.official</span></a>
+          </div>
+        </div>
       </div>
     </div>
     <div class="portfolio-story">
-      <h3>A Taste of What We Can Build</h3>
-      <p><strong>The Roujoula success story:</strong> C Media helped Roujoula grow its digital presence on social media and become known as a leading trimming and men's care brand in Lebanon.</p>
-      <p><strong>Freddy Cell:</strong> We helped transform its content from low engagement into one of the most recognized pages in its industry.</p>
+      <h3>Client Stories, Built with Intention</h3>
+      <p class="portfolio-intro">Every business has its own voice and its own next chapter. Here are two examples of the growth C Media has helped shape through focused social presence and content.</p>
+      <div class="portfolio-case-studies">
+        <article class="client-case-study">
+          <span class="case-study-logo"><img src="assets/client-logos/roujoula.png" alt="Roujoula logo" loading="lazy"></span>
+          <span class="case-study-label">Client story</span>
+          <h4>Roujoula</h4>
+          <p class="case-study-copy">C Media helped Roujoula grow its digital presence on social media and build recognition as a Lebanese trimming and men's care brand.</p>
+          <p class="case-study-focus"><strong>The focus:</strong> strengthen the brand's presence and help its identity reach more people online.</p>
+          <a class="case-study-link" href="https://www.instagram.com/roujoula.official/" target="_blank" rel="noopener noreferrer">Explore Roujoula on Instagram</a>
+        </article>
+        <article class="client-case-study">
+          <span class="case-study-logo"><img src="assets/client-logos/freddycell.png" alt="Freddy Cell logo" loading="lazy"></span>
+          <span class="case-study-label">Client story</span>
+          <h4>Freddy Cell</h4>
+          <p class="case-study-copy">Together, we reshaped content that had been receiving low engagement and helped Freddy Cell become one of the more recognized pages in its industry.</p>
+          <p class="case-study-focus"><strong>The focus:</strong> make the content more compelling, encourage stronger interaction, and build a more recognizable social presence.</p>
+          <a class="case-study-link" href="https://www.instagram.com/freddycellshop/" target="_blank" rel="noopener noreferrer">Explore Freddy Cell on Instagram</a>
+        </article>
+      </div>
       <p class="portfolio-closing">That is just a glimpse of what we can do. You can watch us grow, or we can be part of each other's success.</p>
     </div>
   </section>
@@ -607,7 +986,7 @@
   <section id="pricing">
     <h2>Our Packages</h2>
     <div class="cards">
-      <article class="card package-card" tabindex="0" aria-label="Starter package, 8 reels">
+      <article class="card package-card" role="button" tabindex="0" aria-label="Starter package, show package details." aria-pressed="false">
         <div class="package-card-inner">
           <div class="package-card-face package-card-front">
             <h3>Starter</h3>
@@ -629,7 +1008,7 @@
           </div>
         </div>
       </article>
-      <article class="card package-card" tabindex="0" aria-label="Essential package, 12 reels">
+      <article class="card package-card" role="button" tabindex="0" aria-label="Essential package, show package details." aria-pressed="false">
         <div class="package-card-inner">
           <div class="package-card-face package-card-front">
             <h3>Essential</h3>
@@ -651,7 +1030,7 @@
           </div>
         </div>
       </article>
-      <article class="card package-card" tabindex="0" aria-label="Growth package, 16 reels">
+      <article class="card package-card" role="button" tabindex="0" aria-label="Growth package, show package details." aria-pressed="false">
         <div class="package-card-inner">
           <div class="package-card-face package-card-front">
             <h3>Growth</h3>
@@ -744,7 +1123,8 @@
         ".portfolio-clients",
         ".portfolio-story",
         ".about",
-        ".booking-form"
+        ".booking-form",
+        ".comparison-chart"
       ].join(","));
 
       document.body.classList.add("has-scroll-reveal");
@@ -766,6 +1146,134 @@
         revealObserver.observe(element);
       });
     }
+
+    const ambientFields = document.querySelector(".ambient-fields");
+    const portfolioClients = document.querySelector(".portfolio-clients");
+    const clientMarquee = document.querySelector(".client-marquee");
+    const clientMarqueeTrack = clientMarquee.querySelector(".client-marquee-track");
+    const clientLogoSet = clientMarqueeTrack.querySelector(".client-marquee-group");
+    const duplicateClientLogoSet = clientLogoSet.cloneNode(true);
+    duplicateClientLogoSet.setAttribute("aria-hidden", "true");
+    duplicateClientLogoSet.inert = true;
+    clientMarqueeTrack.append(duplicateClientLogoSet);
+    if (!prefersReducedMotion) clientMarquee.classList.add("is-moving");
+
+    document.addEventListener("visibilitychange", () => {
+      ambientFields.classList.toggle("is-paused", document.hidden);
+      portfolioClients.classList.toggle("is-paused", document.hidden);
+    });
+
+    const businessGrowthChart = document.getElementById("businessGrowthChart");
+    const comparisonSummary = document.getElementById("comparisonSummary");
+    const scenarioButtons = {
+      with: document.getElementById("withCmedia"),
+      without: document.getElementById("withoutCmedia")
+    };
+    const scenarioSummaries = {
+      with: "With CMedia: sales grow gradually throughout the year.",
+      without: "Without CMedia: sales may drop or remain low throughout the year."
+    };
+    let salesAnimationFrame = null;
+
+    Object.entries(scenarioButtons).forEach(([scenario, button]) => {
+      button.addEventListener("click", () => {
+        businessGrowthChart.dataset.scenario = scenario;
+        comparisonSummary.textContent = scenarioSummaries[scenario];
+        Object.entries(scenarioButtons).forEach(([buttonScenario, scenarioButton]) => {
+          scenarioButton.setAttribute("aria-pressed", String(buttonScenario === scenario));
+        });
+
+        if (salesAnimationFrame !== null) {
+          cancelAnimationFrame(salesAnimationFrame);
+          salesAnimationFrame = null;
+        }
+        businessGrowthChart.querySelectorAll(".comparison-line").forEach((line) => {
+          line.style.strokeDasharray = "";
+          line.style.strokeDashoffset = "";
+          line.style.removeProperty("marker-end");
+        });
+        businessGrowthChart.querySelectorAll(".sales-traveler").forEach((traveler) => {
+          traveler.setAttribute("visibility", "hidden");
+        });
+        if (prefersReducedMotion) return;
+
+        requestAnimationFrame(() => {
+          if (businessGrowthChart.dataset.scenario !== scenario) return;
+          const activeLines = [...businessGrowthChart.querySelectorAll(
+            `[data-scenario-line="${scenario}"]`
+          )].map((line, index) => {
+            const length = line.getTotalLength();
+            line.style.strokeDasharray = `${length} ${length}`;
+            line.style.strokeDashoffset = String(length);
+            line.style.setProperty("marker-end", "none");
+            const traveler = businessGrowthChart.querySelector(
+              `[data-scenario-traveler="${scenario}"]${scenario === "without" ? `[data-line-index="${index}"]` : ""}`
+            );
+            traveler.setAttribute("visibility", "visible");
+            return { line, length, traveler };
+          });
+
+          const startTime = performance.now();
+          const duration = 2400;
+          const drawSalesLines = (currentTime) => {
+            if (businessGrowthChart.dataset.scenario !== scenario) {
+              salesAnimationFrame = null;
+              return;
+            }
+            const progress = Math.min((currentTime - startTime) / duration, 1);
+            activeLines.forEach(({ line, length, traveler }) => {
+              const distance = length * progress;
+              const point = line.getPointAtLength(distance);
+              const nextPoint = line.getPointAtLength(Math.min(distance + 1, length));
+              const angle = Math.atan2(nextPoint.y - point.y, nextPoint.x - point.x) * 180 / Math.PI;
+              line.style.strokeDashoffset = String(length - distance);
+              traveler.setAttribute("transform", `translate(${point.x} ${point.y}) rotate(${angle})`);
+            });
+
+            if (progress < 1) {
+              salesAnimationFrame = requestAnimationFrame(drawSalesLines);
+              return;
+            }
+            activeLines.forEach(({ line, traveler }) => {
+              line.style.strokeDasharray = "";
+              line.style.strokeDashoffset = "";
+              line.style.removeProperty("marker-end");
+              traveler.setAttribute("visibility", "hidden");
+            });
+            salesAnimationFrame = null;
+          };
+          salesAnimationFrame = requestAnimationFrame(drawSalesLines);
+        });
+      });
+    });
+
+    document.querySelectorAll(".service-toggle").forEach((toggle) => {
+      const description = document.getElementById(toggle.getAttribute("aria-controls"));
+      toggle.addEventListener("click", () => {
+        const isExpanded = toggle.getAttribute("aria-expanded") === "true";
+        toggle.setAttribute("aria-expanded", String(!isExpanded));
+        description.hidden = isExpanded;
+      });
+    });
+
+    document.querySelectorAll(".package-card").forEach((packageCard) => {
+      const packageName = packageCard.querySelector(".package-card-front h3").textContent;
+      const togglePackageCard = () => {
+        const isFlipped = packageCard.classList.toggle("is-flipped");
+        packageCard.setAttribute("aria-pressed", String(isFlipped));
+        packageCard.setAttribute(
+          "aria-label",
+          `${packageName} package, ${isFlipped ? "hide" : "show"} package details.`
+        );
+      };
+      packageCard.addEventListener("click", togglePackageCard);
+      packageCard.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          togglePackageCard();
+        }
+      });
+    });
 
     function requestAppointment() {
       const contactSection = document.getElementById("contact");
